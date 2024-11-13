@@ -28,7 +28,7 @@ def load_data_from_json():
 
 def get_user_cards(user_id):
     data = load_data_from_json()
-    user_data = data.get("users", {}).get(str(user_id))  # Access user data directly by ID
+    user_data = data.get("users", {}).get(str(user_id)) 
 
     if user_data:
         return user_data.get('cards', [])
@@ -55,16 +55,14 @@ async def send_card_images(user, selected_cards):
 
 
 async def send_card(user, card_name):
-    # Check if the user data exists within data['users']
-    user_data = data.get('users', {}).get(str(user.id))  # Cast user.id to string to match the dictionary keys
+    user_data = data.get('users', {}).get(str(user.id)) 
 
     if not user_data:
         await user.send("Sorry, user data not found.")
         return
 
     found_card = None
-    # Search for the card in the user's card list
-    for card in user_data.get("cards", []):  # Access the "cards" list within the user_data
+    for card in user_data.get("cards", []):  
         if card["name"].lower() == card_name.lower():
             found_card = card
             break
@@ -73,7 +71,6 @@ async def send_card(user, card_name):
         await user.send(f"Sorry, I couldn't find any information for the card '{card_name}'.")
         return
 
-    # Prepare and send the embed message
     embed = discord.Embed(
         title=found_card["name"],
         description=(
@@ -120,7 +117,7 @@ async def give_daily_cards(ctx):
         user_data[user_id] = user_profile
 
     if user_profile.get("date") == today:
-        await ctx.author.send("You’ve already received your cards today. Check this link for more info: https://www.google.com")
+        await ctx.author.send("You’ve already received your cards today. Check this link for more info: https://www.google.com")  #change website link google.com to BeiengSarangi
         return
 
     daily_cards = random.sample(available_cards, 2)
@@ -177,8 +174,6 @@ async def battle(ctx: commands.Context, opponent: str):
         active_battles[userA_id] = battle_data
         active_battles[userB_id] = battle_data  
 
-        # print(f"Battle data added: {battle_data}")
-
         active_battles[userA_id] = battle_data
 
         await ctx.send(f"{ctx.author.mention} challenged {opponent_user.mention} to a battle! Type `!accept` to join.")
@@ -198,10 +193,7 @@ async def accept(ctx):
     battle_found = False
     battle_data = None
 
-    # print(f"Active Battles: {active_battles}")
-
     for battle_key, battle in active_battles.items():
-        # print(f"Checking battle with UserA ID {battle.get('userA_id')} and UserB ID {battle.get('userB_id')}")
         if battle.get('userB_id') == user_id and battle.get('status') == 'pending':
             battle_found = True
             battle_data = battle
@@ -261,17 +253,15 @@ async def get_additional_cards(ctx, battle):
         
         userB_available_cards = [card['name'] for card in userB_initial_cards]
         await userB.send(f"Available cards: {', '.join(userB_available_cards)}")
-        userB_msg1 = await bot.wait_for('message', check=check_b, timeout=1000.0)
+        userB_msg1 = await bot.wait_for('message', check=check_b, timeout=2000.0)
         card_name1_b = userB_msg1.content.strip()
 
         await send_card(userB, card_name1_b)
 
-        userB_msg2 = await bot.wait_for('message', check=check_b, timeout=1000.0)
+        userB_msg2 = await bot.wait_for('message', check=check_b, timeout=2000.0)
         card_name2_b = userB_msg2.content.strip()
 
         await send_card(userB, card_name2_b)
-
-# working proper ------------------------------------------------------------------------------------------------------------------------------------------
         await ctx.send(f"Both players have selected their cards. Let the battle begin!")
         await start_battle(ctx, battle, userA_initial_cards, userB_initial_cards, card_name1, card_name2, card_name1_b, card_name2_b)
 
@@ -358,14 +348,8 @@ async def start_battle_rounds(ctx, userA_hand, userB_hand, battle):
 
 
         try:
-            message_a = await bot.wait_for('message', check=check_a, timeout=100.0)
-            message_b = await bot.wait_for('message', check=check_b, timeout=100.0)
+            message_a = await bot.wait_for('message', check=check_a, timeout=200.0)
             message_a_content = message_a.content.strip().split()
-
-            if len(message_a_content) < 2:
-                await ctx.send("Please provide both the card name and stat.")
-                return
-
             if len(message_a_content) == 2:
                 card_a, stat_a = message_a_content
             elif len(message_a_content) == 3:
@@ -374,17 +358,24 @@ async def start_battle_rounds(ctx, userA_hand, userB_hand, battle):
             else:
                 await ctx.send("Invalid input. Please enter either two or three words.")
                 return
-            card_b = message_b.content.strip()
+            
 
             selected_card_a = next(card for card in userA_hand if card['name'] == card_a)
+            await send_card_images(userB, [selected_card_a])
+
+            message_b = await bot.wait_for('message', check=check_b, timeout=200.0)
+            card_b = message_b.content.strip()
+            
             selected_card_b = next(card for card in userB_hand if card['name'] == card_b)
 
-            await send_card_images(userA, [selected_card_a])
-            await send_card_images(userB, [selected_card_b])
+            await send_card_images(userA, [selected_card_b])
 
             stat_value_a = selected_card_a[stat_a]  
             stat_value_b = selected_card_b[stat_a] 
-
+            if(stat_value_a == "N/A"):
+                stat_value_a = 0
+            if(stat_value_b == "N/A"):
+                stat_value_b = 0
             userA_score = 0
             userB_score = 0
             if stat_value_a > stat_value_b:
@@ -426,7 +417,7 @@ async def determine_final_winner(ctx, userA_score, userB_score, userA, userB, da
 
 @bot.command(name="data")
 async def show_user_data(ctx):
-    user_id = str(ctx.author.id)  # Get the user ID
+    user_id = str(ctx.author.id) 
 
     data = load_data_from_json()
     user_data = data.get("users", {})
@@ -436,20 +427,17 @@ async def show_user_data(ctx):
         return
 
     user_profile = user_data[user_id]
-    points = user_profile.get('points', 0)  # Get the points
-    cards = user_profile.get('cards', [])  # Get the list of cards
+    points = user_profile.get('points', 0) 
+    cards = user_profile.get('cards', [])
 
-    # Create an embed to show the user's points
     embed = discord.Embed(
         title=f"{ctx.author.name}'s Data",
         description=f"Points: {points}",
         color=discord.Color.green()
     )
 
-    # Send an embed with the user's points to DM
     await ctx.author.send(embed=embed)
 
-    # If the user has cards, send the images of those cards to DM
     if cards:
         for card in cards:
             card_embed = discord.Embed(
