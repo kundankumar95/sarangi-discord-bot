@@ -6,6 +6,7 @@ import asyncio
 import os
 from dotenv import load_dotenv
 from datetime import datetime
+from prettytable import PrettyTable
 
 
 load_dotenv()
@@ -94,12 +95,13 @@ async def send_card(user, card_name):
 async def on_ready():
     print(f'Logged in as {bot.user}')
 
-@bot.command(name="cards")
+
+@bot.command(name="roll")
 async def give_daily_cards(ctx):
-    user_id = str(ctx.author.id) 
+    user_id = str(ctx.author.id)
     today = datetime.now().date().strftime("%Y-%m-%d")
 
-  
+    # Load data
     data = load_data_from_json()
     user_data = data.get("users", {})
     available_cards = data.get("available_cards", [])
@@ -112,25 +114,44 @@ async def give_daily_cards(ctx):
             "name": ctx.author.name,
             "date": "", 
             "points": 0,
-            "cards": []
+            "cards": [],
+            "visit_count": 0  
         }
         user_data[user_id] = user_profile
 
+    if user_profile.get("date") != today:
+        user_profile["visit_count"] = 0  
+        user_profile["date"] = today
+        save_user_data(data)
+
+
     if user_profile.get("date") == today:
-        await ctx.author.send("You’ve already received your cards today. Check this link for more info: https://www.google.com")  #change website link google.com to BeiengSarangi
+        if user_profile["visit_count"] == 0:
+            daily_card = random.sample(available_cards, 1)[0]
+            user_profile["cards"] = [daily_card]
+            user_profile["visit_count"] += 1
+            save_user_data(data)
+            await ctx.author.send(f"Here is your first card for today:\n{daily_card['image_url']}")
+        elif user_profile["visit_count"] == 1:
+            daily_card = random.sample(available_cards, 1)[0]
+            user_profile["cards"].append(daily_card)  
+            user_profile["visit_count"] += 1 
+            data["users"] = user_data  
+            save_user_data(data)
+            await ctx.author.send(f"Here is your second card for today:\n{daily_card['image_url']}")
+        else:
+            await ctx.author.send("You’ve already received your cards today. Check this link for more info: https://www.BeingSarangi.com")
         return
+    else:
+        user_profile["date"] = today
+        user_profile["visit_count"] = 1
+        daily_card = random.sample(available_cards, 1)[0]
+        user_profile["cards"] = [daily_card]
+        data["users"] = user_data
+        save_user_data(data)
+        await ctx.author.send(f"Here is your first card for today:\n{daily_card['image_url']}")
 
-    daily_cards = random.sample(available_cards, 2)
-    user_profile["cards"] = daily_cards
-    user_profile["date"] = today
 
-   
-    data["users"] = user_data
-    save_user_data(data)
-
-   
-    card_images = "\n".join([card['image_url'] for card in daily_cards])
-    await ctx.author.send(f"Here are your cards for today:\n{card_images}")
 
 
 def save_user_data(user_data):
@@ -415,8 +436,8 @@ async def determine_final_winner(ctx, userA_score, userB_score, userA, userB, da
     await ctx.send(f"The final winner is: {final_winner}")
     save_user_data(data)
 
-@bot.command(name="data")
-async def show_user_data(ctx):
+@bot.command(name="team")
+async def show_team_data(ctx):
     user_id = str(ctx.author.id) 
 
     data = load_data_from_json()
@@ -448,11 +469,83 @@ async def show_user_data(ctx):
             image_url = card.get('image_url')
             if image_url:
                 card_embed.set_image(url=image_url)
-
             await ctx.author.send(embed=card_embed)
     else:
         await ctx.author.send("You don't have any cards yet.")
 
+def save_data_to_json(data):
+    with open("data.json", "w") as f:
+        json.dump(data, f, indent=4)
 
+
+@bot.command(name="sell")
+async def sell_card(ctx, *, card_name: str):
+    user_id = str(ctx.author.id)
+    data = load_data_from_json()
+
+    user_data = data.get("users", {}).get(user_id)
+    if not user_data:
+        await ctx.send(f"{ctx.author.mention}, you do not have an account in the system.")
+        return
+
+    user_cards = user_data.get("cards", [])
+    card_to_sell = next((card for card in user_cards if card["name"].lower() == card_name.lower()), None)
+
+    if not card_to_sell:
+        await ctx.send(f"{ctx.author.mention}, you don't own a card named '{card_name}'.")
+        return
+
+
+    card_points = card_to_sell.get("price", 0)
+    user_points = user_data.get("points", 0)
+    user_data["points"] = user_points + card_points
+
+
+    user_cards.remove(card_to_sell)
+    user_data["cards"] = user_cards
+
+
+    data["available_cards"].append(card_to_sell)
+
+
+    save_data_to_json(data)
+
+    await ctx.send(
+        f"{ctx.author.mention}, you have successfully sold the card '{card_name}' for {card_points} points!\n"
+        f"Your new points total is {user_data['points']}."
+    )
+
+
+@bot.command(name="leaderboard")
+async def dashboard(ctx):
+    users_data = data.get("users", {})
+
+    leaderboard = []
+    for user_id, user_info in users_data.items():
+        wins = user_info.get("Wins", 0)
+        losses = user_info.get("losses", 0)
+        matches_played = wins + losses  
+        leaderboard.append({
+            "name": user_info.get("name", "Unknown"),
+            "wins": wins,
+            "losses": losses,
+            "matches_played": matches_played
+        })
+
+    leaderboard.sort(key=lambda x: x["wins"], reverse=True)
+
+    table = PrettyTable()
+    table.field_names = ["Rank", "User", "Wins", "Losses", "Matches Played"]
+
+    for rank, user in enumerate(leaderboard, start=1): 
+        table.add_row([rank, user["name"], user["wins"], user["losses"], user["matches_played"]])
+
+    await ctx.send(f"```\n{table}\n```")
+
+
+@bot.command(name="shop")
+async def shop(ctx):
+    website_url = "https://www.google.com"
+    await ctx.author.send(f"Visit the shop: {website_url}")
 
 bot.run(os.getenv("DISCORD_BOT_TOKEN"))
