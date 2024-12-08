@@ -11,8 +11,14 @@ from pymongo import MongoClient
 from apscheduler.schedulers.blocking import BlockingScheduler
 import threading
 import time
+from threading import Thread
+from flask import Flask
 
 load_dotenv()
+
+
+port = os.getenv('PORT', 5000) 
+app = Flask(__name__)
 
 intents = discord.Intents.default()
 intents.members = True
@@ -611,15 +617,31 @@ def update_data_in_mongo():
 
 scheduler = BlockingScheduler()
 
-scheduler.add_job(update_data_in_mongo, 'interval', minutes=1)
-print("Scheduler started. MongoDB will be updated every minute.")
+# scheduler.add_job(update_data_in_mongo, 'interval', minutes=1)
+# print("Scheduler started. MongoDB will be updated every minute.")
+
+# def run_bot():
+#     bot.run(os.getenv("DISCORD_BOT_TOKEN"))
+
+# thread = threading.Thread(target=run_bot)
+# thread.start()
+
+# scheduler.start()
 
 def run_bot():
     bot.run(os.getenv("DISCORD_BOT_TOKEN"))
 
-thread = threading.Thread(target=run_bot)
-thread.start()
+@app.route('/')
+def home():
+    return "Bot is running."
 
-scheduler.start()
-if _name_ == "_main_":
-    app.run(debug=True, host='0.0.0.0', port=4000)
+def run_flask():
+    app.run(host="0.0.0.0", port=5000, use_reloader=False)
+
+if __name__ == "__main__":
+    bot_thread = threading.Thread(target=run_bot)
+    bot_thread.start()
+
+    run_flask()
+
+    scheduler.start()
