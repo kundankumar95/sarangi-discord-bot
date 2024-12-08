@@ -628,20 +628,14 @@ scheduler = BlockingScheduler()
 
 # scheduler.start()
 
-def run_bot():
-    bot.run(os.getenv("DISCORD_BOT_TOKEN"))
-
-@app.route('/')
-def home():
-    return "Bot is running."
-
 def run_flask():
     app.run(host="0.0.0.0", port=5000, use_reloader=False)
 
+# Run Discord bot
+def run_discord_bot():
+    bot.run(os.getenv("DISCORD_BOT_TOKEN"))
+
 if __name__ == "__main__":
-    bot_thread = threading.Thread(target=run_bot)
-    bot_thread.start()
-
-    run_flask()
-
-    scheduler.start()
+    flask_thread = Thread(target=run_flask)
+    flask_thread.start()
+    run_discord_bot()
