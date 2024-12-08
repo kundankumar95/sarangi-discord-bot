@@ -621,3 +621,5 @@ thread = threading.Thread(target=run_bot)
 thread.start()
 
 scheduler.start()
+def run_flask():
+    app.run(host='0.0.0.0', port=4000)
