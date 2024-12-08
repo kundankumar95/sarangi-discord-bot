@@ -106,6 +106,42 @@
                     "SV": 0,
                     "APPS": 33,
                     "image_url": "http://res.cloudinary.com/dydf5zyxx/image/upload/v1730924350/kut2trfl3hnx5ukwqxcy.jpg"
+                },
+                {
+                    "user_id": "1135106129253388390",
+                    "name": "Gabriel Martinelli",
+                    "rating": 83,
+                    "price": 30,
+                    "agr": 7.2,
+                    "SV": 0,
+                    "TW": 0,
+                    "G/A": 30,
+                    "APPS": 71,
+                    "image_url": "http://res.cloudinary.com/dydf5zyxx/image/upload/v1730924349/vxsgs4cdk9cximb5cexy.jpg"
+                },
+                {
+                    "user_id": "1135106129253388390",
+                    "name": "Ederson Moraes",
+                    "rating": 87,
+                    "price": 30,
+                    "agr": 6.7,
+                    "G/A": 0,
+                    "TW": 0,
+                    "SV": 149,
+                    "APPS": 91,
+                    "image_url": "http://res.cloudinary.com/dydf5zyxx/image/upload/v1730924348/c0ofnfvuq4snxyshy2kn.jpg"
+                },
+                {
+                    "user_id": "1135106129253388390",
+                    "name": "Ederson Moraes",
+                    "rating": 87,
+                    "price": 30,
+                    "agr": 6.7,
+                    "SV": 149,
+                    "TW": 0,
+                    "G/A": 0,
+                    "APPS": 91,
+                    "image_url": "http://res.cloudinary.com/dydf5zyxx/image/upload/v1730924348/c0ofnfvuq4snxyshy2kn.jpg"
                 }
             ],
             "date": "2024-11-22"
@@ -215,6 +251,42 @@
                     "TW": 0,
                     "APPS": 33,
                     "image_url": "http://res.cloudinary.com/dydf5zyxx/image/upload/v1730924350/kut2trfl3hnx5ukwqxcy.jpg"
+                },
+                {
+                    "user_id": "1135106129253388390",
+                    "name": "Gabriel Martinelli",
+                    "rating": 83,
+                    "price": 30,
+                    "agr": 7.2,
+                    "SV": 0,
+                    "TW": 0,
+                    "G/A": 30,
+                    "APPS": 71,
+                    "image_url": "http://res.cloudinary.com/dydf5zyxx/image/upload/v1730924349/vxsgs4cdk9cximb5cexy.jpg"
+                },
+                {
+                    "user_id": "1135106129253388390",
+                    "name": "Ederson Moraes",
+                    "rating": 87,
+                    "price": 30,
+                    "agr": 6.7,
+                    "G/A": 0,
+                    "TW": 0,
+                    "SV": 149,
+                    "APPS": 91,
+                    "image_url": "http://res.cloudinary.com/dydf5zyxx/image/upload/v1730924348/c0ofnfvuq4snxyshy2kn.jpg"
+                },
+                {
+                    "user_id": "1135106129253388390",
+                    "name": "Ederson Moraes",
+                    "rating": 87,
+                    "price": 30,
+                    "agr": 6.7,
+                    "SV": 149,
+                    "TW": 0,
+                    "G/A": 0,
+                    "APPS": 91,
+                    "image_url": "http://res.cloudinary.com/dydf5zyxx/image/upload/v1730924348/c0ofnfvuq4snxyshy2kn.jpg"
                 }
             ]
         }
