@@ -16,7 +16,7 @@ intents.members = True
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-data_file_path = '/home/kundankarn/discord-football-bot/data.json'
+data_file_path = os.path.join(os.path.dirname(__file__), 'data.json')
 
 def load_data_from_json():
     try:
