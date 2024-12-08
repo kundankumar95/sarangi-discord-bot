@@ -9,8 +9,8 @@ from datetime import datetime
 from prettytable import PrettyTable
 from pymongo import MongoClient
 from apscheduler.schedulers.blocking import BlockingScheduler
+import threading
 import time
-
 
 load_dotenv()
 
@@ -551,7 +551,7 @@ async def shop(ctx):
     website_url = "https://www.google.com"
     await ctx.author.send(f"Visit the shop: {website_url}")
 
-bot.run(os.getenv("DISCORD_BOT_TOKEN"))
+
 
 
 
@@ -559,7 +559,7 @@ client = MongoClient("mongodb+srv://kundan:kundankumar@cluster0.psuhr.mongodb.ne
 db = client["kundan"]
 users_collection = db["users"]
 
-def read_card_data(filename="/home/kundankarn/discord-football-bot/data.json"):
+def read_card_data(filename="data.json"):
     with open(filename, "r") as file:
         data = json.load(file)
     return data
@@ -591,13 +591,33 @@ def update_mongodb_with_card_data(data):
         )
 
 def update_data_in_mongo():
-    card_data = read_card_data("/home/kundankarn/discord-football-bot/data.json")
+    card_data = read_card_data("data.json")
     update_mongodb_with_card_data(card_data)
     print("MongoDB database has been updated with the latest card data!")
 
+# scheduler = BlockingScheduler()
+
+# scheduler.add_job(update_data_in_mongo, 'interval', minutes=1)
+# print("Scheduler started. MongoDB will be updated every second.")
+# scheduler.start()
+
+
+# bot.run(os.getenv("DISCORD_BOT_TOKEN"))
+
+def update_data_in_mongo():
+    print("MongoDB update started.")
+    time.sleep(1) 
+    print("MongoDB update completed.")
+
 scheduler = BlockingScheduler()
 
-scheduler.add_job(update_data_in_mongo, 'interval', seconds=1)
-print("Scheduler started. MongoDB will be updated every second.")
-scheduler.start()
+scheduler.add_job(update_data_in_mongo, 'interval', minutes=1)
+print("Scheduler started. MongoDB will be updated every minute.")
 
+def run_bot():
+    bot.run(os.getenv("DISCORD_BOT_TOKEN"))
+
+thread = threading.Thread(target=run_bot)
+thread.start()
+
+scheduler.start()
